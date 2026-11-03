@@ -1,6 +1,6 @@
 // L&L Fashion — funciona sin internet.
 // Cuando cambies index.html, sube el número de versión para que los teléfonos se actualicen.
-const VERSION = "llf-v5";
+const VERSION = "llf-v14";
 const ARCHIVOS = ["./", "index.html", "manifest.json", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", e => {

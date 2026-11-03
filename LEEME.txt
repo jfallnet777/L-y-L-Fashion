@@ -19,11 +19,18 @@ CONTRASEÑA
 - Si la olvidas y no tienes pista, NO se puede recuperar.
   Ten siempre una copia de seguridad reciente.
 
-IMPORTANTE
-- Tus ventas, clientes, productos y fotos se guardan SOLO en el teléfono.
-- En Resumen → "Descargar copia" haz una copia de seguridad cada semana
-  y guárdala en Google Drive o envíatela por WhatsApp.
-- Si cambias de teléfono: instala la app en el nuevo y usa "Restaurar copia".
+RESPALDOS
+- La app guarda respaldos sola al salir y cada 4 horas (si hubo cambios).
+  Están en Resumen → "Respaldos" y puedes restaurarlos desde ahí.
+- Esos respaldos viven dentro del teléfono. Para protegerte si pierdes
+  o se daña el teléfono, usa "Descargar copia completa" cada semana
+  y guarda el archivo en Google Drive o envíatelo por WhatsApp.
+- Si cambias de teléfono: instala la app en el nuevo y usa
+  "Restaurar desde archivo".
+- Cuando hace falta, la app te muestra arriba el aviso
+  "Descarga tu respaldo": tócalo para bajar la copia.
+- En computadora (Chrome o Edge) puedes elegir una carpeta en
+  Resumen → Respaldos y la app guardará ahí los respaldos sola.
 
 ACTUALIZAR LA APP MÁS ADELANTE
 - Arrastra la carpeta nueva al mismo sitio en Netlify (Deploys).
