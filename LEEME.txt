@@ -1,0 +1,30 @@
+L&L FASHION — Cómo instalar la app en tu teléfono
+
+1. Desde una computadora, entra a https://app.netlify.com/drop
+2. Descomprime este zip y arrastra la carpeta "ll-fashion-pwa" a esa página.
+3. Netlify te da un enlace (por ejemplo https://algo.netlify.app).
+   Crea una cuenta gratis para que el enlace no se borre.
+4. Abre ese enlace en tu teléfono:
+   - Android (Chrome): menú de tres puntos → "Instalar app".
+   - iPhone (Safari): botón Compartir → "Agregar a inicio".
+
+LA PRIMERA VEZ
+- La app trae datos de prueba (productos, clientes, ventas y cotizaciones)
+  para que practiques. Bórralos en Resumen → "Borrar datos de prueba".
+- Abre la app con internet y descarga un PDF una vez; después
+  los PDF también funcionan sin internet.
+
+CONTRASEÑA
+- En Resumen → "Contraseña" puedes ponerle clave a la app.
+- Si la olvidas y no tienes pista, NO se puede recuperar.
+  Ten siempre una copia de seguridad reciente.
+
+IMPORTANTE
+- Tus ventas, clientes, productos y fotos se guardan SOLO en el teléfono.
+- En Resumen → "Descargar copia" haz una copia de seguridad cada semana
+  y guárdala en Google Drive o envíatela por WhatsApp.
+- Si cambias de teléfono: instala la app en el nuevo y usa "Restaurar copia".
+
+ACTUALIZAR LA APP MÁS ADELANTE
+- Arrastra la carpeta nueva al mismo sitio en Netlify (Deploys).
+  Tus datos no se borran al actualizar.
