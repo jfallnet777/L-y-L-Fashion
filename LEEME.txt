@@ -35,3 +35,14 @@ RESPALDOS
 ACTUALIZAR LA APP MÁS ADELANTE
 - Arrastra la carpeta nueva al mismo sitio en Netlify (Deploys).
   Tus datos no se borran al actualizar.
+
+CONVERTIR EN APP DE TIENDA CON PWABUILDER
+- PWABuilder trabaja con el ENLACE de tu app, no con los archivos.
+  1. Sube esta carpeta a Netlify o GitHub (como siempre).
+  2. Entra a https://www.pwabuilder.com y pega el enlace de tu app.
+  3. Toca "Package For Stores" y elige Android, iOS o Windows.
+- Android (Play Store): PWABuilder te da un archivo "assetlinks.json".
+  Ponlo en una carpeta llamada ".well-known" dentro de esta carpeta
+  y vuelve a subirla. Así la app abre sin la barra del navegador.
+  Esto funciona en Netlify o en un repositorio de GitHub llamado
+  TUUSUARIO.github.io (no en uno con otro nombre).

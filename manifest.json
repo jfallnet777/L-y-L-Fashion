@@ -2,15 +2,61 @@
   "id": "./",
   "name": "L&L Fashion",
   "short_name": "L&L Fashion",
-  "description": "Ventas, clientes e inventario de L&L Fashion",
+  "description": "Ventas, clientes, cotizaciones e inventario de la tienda de ropa L&L Fashion.",
   "lang": "es-DO",
+  "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#F7F3FE",
   "theme_color": "#F7F3FE",
+  "categories": [
+    "business",
+    "shopping",
+    "productivity"
+  ],
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
   "icons": [
+    {
+      "src": "icons/icon-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "icons/icon-192.png",
       "sizes": "192x192",
@@ -18,8 +64,26 @@
       "purpose": "any"
     },
     {
+      "src": "icons/icon-256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "icons/icon-512.png",
       "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-1024.png",
+      "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
     },
@@ -34,6 +98,81 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/movil-ventas.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Lista de ventas con totales del mes"
+    },
+    {
+      "src": "screenshots/movil-clientes.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Clientes: mejores, deudas y cumpleaños"
+    },
+    {
+      "src": "screenshots/movil-resumen.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Ganancias por periodo"
+    },
+    {
+      "src": "screenshots/escritorio-ventas.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Ventas con detalle en pantalla grande"
+    },
+    {
+      "src": "screenshots/escritorio-resumen.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Resumen de ganancias en pantalla grande"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ventas",
+      "short_name": "Ventas",
+      "url": "./#ventas",
+      "icons": [
+        {
+          "src": "icons/atajo-venta.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "short_name": "Clientes",
+      "url": "./#clientes",
+      "icons": [
+        {
+          "src": "icons/atajo-clientes.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Inventario",
+      "short_name": "Inventario",
+      "url": "./#inventario",
+      "icons": [
+        {
+          "src": "icons/atajo-inventario.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

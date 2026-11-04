@@ -1,7 +1,7 @@
 // L&L Fashion — funciona sin internet.
 // Cuando cambies index.html, sube el número de versión para que los teléfonos se actualicen.
-const VERSION = "llf-v15";
-const ARCHIVOS = ["./", "index.html", "manifest.json", "favicon.ico", "icons/favicon-16.png", "icons/favicon-32.png", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-192.png", "icons/maskable-512.png", "icons/apple-touch-icon.png"];
+const VERSION = "llf-v16";
+const ARCHIVOS = ["./", "index.html", "manifest.json", "favicon.ico", "icons/favicon-16.png", "icons/favicon-32.png", "icons/icon-96.png", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-192.png", "icons/maskable-512.png", "icons/apple-touch-icon.png", "icons/atajo-venta.png", "icons/atajo-clientes.png", "icons/atajo-inventario.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting()));
@@ -25,6 +25,6 @@ self.addEventListener("fetch", e => {
   // La app: primero intenta internet (para recibir mejoras), si no hay, usa la copia guardada
   e.respondWith(
     fetch(req).then(r => { if (r.ok) { const copia = r.clone(); caches.open(VERSION).then(c => c.put(req, copia)); } return r; })
-      .catch(() => caches.match(req).then(hit => hit || caches.match("index.html")))
+      .catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || (req.mode === "navigate" ? caches.match("index.html") : new Response("", { status: 504 }))))
   );
 });
