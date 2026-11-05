@@ -484,6 +484,45 @@ a.btn{text-decoration:none}
 .clsug .chip{padding:6px 12px;font-size:.85rem;box-shadow:none;background:color-mix(in srgb,var(--azul-claro) 40%,var(--surface));color:var(--azul-ink)}
 .cladd{display:grid;gap:10px}
 .cladd .field input{box-shadow:none;background:var(--bg)}
+.clsearch{position:relative;display:block}
+.clsearch svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--azul);pointer-events:none}
+.clsearch input{padding-left:44px!important}
+.clsugs{display:grid;gap:4px;background:var(--surface);border-radius:18px;padding:6px;margin-top:-6px;box-shadow:0 16px 40px -20px rgba(43,32,69,.45);border:1px solid var(--line);animation:up .15s ease;max-height:330px;overflow-y:auto;overscroll-behavior:contain}
+.clsh{font-size:.75rem;color:var(--ink-soft);padding:6px 10px 2px;letter-spacing:.03em}
+.clsug-item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:14px;text-align:left}
+.clsug-item:hover,.clsug-item:focus-visible{background:var(--bg)}
+.clsug-item .avatar{width:38px;height:38px;font-size:1.1rem;grid-row:auto;margin:0}
+.cs-t{display:grid;min-width:0}
+.cs-t b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-t small{font-size:.78rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clsug-item .pill{margin-top:0;white-space:nowrap}
+.clnoreg{display:grid;gap:8px;justify-items:start;padding:10px;border-radius:14px;background:color-mix(in srgb,var(--rosa) 25%,var(--surface));font-size:.88rem;color:var(--ink-soft)}
+.clnoreg .pill{margin-top:0}
+.clsugs > .clnoreg:not(:first-child){margin-top:4px}
+.rows > .rowi{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;position:relative}
+.rowi.sel-modo{transition:background .15s, box-shadow .15s}
+.rowi.sel-on{background:color-mix(in srgb,var(--azul-claro) 40%,var(--surface));box-shadow:0 0 0 2px var(--azul),var(--shadow)}
+.selck{position:absolute;left:8px;top:8px;z-index:2;font-style:normal;width:26px;height:26px;box-shadow:0 2px 6px rgba(43,32,69,.2);border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;background:var(--surface);color:transparent}
+.selck svg{width:16px;height:16px}
+.rowi.sel-on .selck{background:var(--btn-bg);border-color:transparent;color:#fff}
+.selbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;width:min(520px,calc(100% - 24px));display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:8px;background:var(--ink);color:var(--bg);border-radius:22px;padding:8px 8px 8px 6px;box-shadow:0 20px 40px -20px rgba(43,32,69,.7);animation:up .2s ease}
+.selbar b{font-weight:500;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.selbar .sb-x{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:inherit}
+.selbar .sb-x svg{width:18px;height:18px}
+.selbar .sb-todo{padding:9px 14px;border-radius:999px;color:inherit;font-size:.9rem;background:rgba(255,255,255,.12)}
+.selbar .sb-del{display:flex;gap:6px;align-items:center;padding:9px 16px;border-radius:999px;background:var(--sale);color:#fff;font-weight:500;font-size:.9rem}
+.selbar .sb-del svg{width:17px;height:17px}
+.selbar .sb-del:disabled{opacity:.45}
+@media (min-width:768px){ .selbar{bottom:24px;left:calc(50% + 48px)} }
+body.seleccionando .toolbar .btn.sm{opacity:.4;pointer-events:none}
+.btn.peligro{background:var(--sale);box-shadow:0 8px 20px -10px var(--sale);color:#fff}
+.delopts{display:grid;gap:8px}
+.delopt{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;background:var(--surface);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);border:1.5px solid transparent;cursor:pointer}
+.delopt:has(input:checked){border-color:var(--azul);background:color-mix(in srgb,var(--azul-claro) 25%,var(--surface))}
+.delopt.peligro:has(input:checked){border-color:var(--sale);background:color-mix(in srgb,var(--rosa) 30%,var(--surface))}
+.delopt input{width:20px;height:20px;margin-top:2px;accent-color:var(--morado)}
+.delopt b{font-weight:500;display:block}
+.delopt small{color:var(--ink-soft);font-size:.82rem;line-height:1.35}
 .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--bg);padding:11px 20px;border-radius:999px;transition:.25s;z-index:50;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -511,6 +550,7 @@ a.btn{text-decoration:none}
 </nav></div>
 
 <dialog id="sheet" aria-label="Formulario"></dialog>
+<div class="selbar" id="selbar" role="toolbar" aria-label="Selección" hidden></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -672,6 +712,7 @@ function vistaNegocio(){
       ({resumen:negResumen, inventario:negInventario, ventas:negVentas, clientes:negClientes})[NEG.sub]();
   }
   view.innerHTML = cuerpo;
+  if(typeof marcarSeleccion==="function") marcarSeleccion();
 }
 
 
@@ -966,13 +1007,16 @@ const diasEntre = (a,b) => Math.round((s2f(b)-s2f(a))/864e5);
 function cumplePronto(c){ if(!c) return null; const p=c.cumple; if(!p) return null; const md=p.slice(5); let d=`${hoy().slice(0,4)}-${md}`; if(d<hoy()) d=`${+hoy().slice(0,4)+1}-${md}`; const n=diasEntre(hoy(),d); return n<=14?n:null; }
 function linkWhatsApp(tel){ let d=String(tel||"").replace(/\D/g,""); if(!d) return ""; if(d.length===10 && /^(809|829|849)/.test(d)) d="1"+d; return "https://wa.me/"+d; }
 
-function clientesAgrupados(){
+function clientesAgrupados(incluirOcultos){
   const m = new Map();
   NEG.ventas.forEach(v=>{ const k=claveCliente(v.cliente); const c=m.get(k)||{k,nombre:(v.cliente||"Sin nombre").trim(),total:0,ganancia:0,debe:0,compras:0,piezas:0,primera:"",ultima:"",fechas:new Set()};
     c.total+=totalV(v); c.ganancia+=gananciaV(v); c.compras++; c.piezas+=num(v.cantidad); c.debe+=saldoV(v); c.fechas.add(v.fecha);
     if(v.fecha && (!c.primera||v.fecha<c.primera)) c.primera=v.fecha; if((v.fecha||"")>c.ultima) c.ultima=v.fecha; m.set(k,c); });
-  NEG.perfiles.forEach(p=>{ const k=claveCliente(p.nombre); if(!m.has(k)) m.set(k,{k,nombre:p.nombre,total:0,ganancia:0,debe:0,compras:0,piezas:0,primera:"",ultima:"",fechas:new Set()}); m.get(k).perfil=p; });
-  const lista=[...m.values()].sort((a,b)=>b.total-a.total);
+  NEG.perfiles.forEach(p=>{ const k=claveCliente(p.nombre); if(p.eliminado && !m.has(k)) return; if(!m.has(k)) m.set(k,{k,nombre:p.nombre,total:0,ganancia:0,debe:0,compras:0,piezas:0,primera:"",ultima:"",fechas:new Set()}); m.get(k).perfil=p; });
+  let lista=[...m.values()];
+  // clientes quitados de la lista (sus ventas se conservaron); vuelven si se les vende de nuevo
+  if(!incluirOcultos) lista=lista.filter(c=>!(c.perfil && c.perfil.eliminado && !NEG.ventas.some(v=>claveCliente(v.cliente)===c.k && (v.creado||0)>(c.perfil.eliminadoEn||0))));
+  lista.sort((a,b)=>b.total-a.total);
   lista.forEach((c,i)=>{ c.rank = c.total>0 ? i+1 : null; c.visitas=c.fechas.size; });
   return lista;
 }
@@ -1052,7 +1096,7 @@ function hojaCliente(k){
   k = claveCliente(k);
   const ventasDe=()=>NEG.ventas.filter(v=>claveCliente(v.cliente)===k);
   const pintar=()=>{
-    const c = clientesAgrupados().find(x=>x.k===k); if(!c){ sheet.close(); return; }
+    const c = clientesAgrupados(true).find(x=>x.k===k); if(!c){ sheet.close(); return; }
     const vs=ventasDe(), p=c.perfil||{}, wa=linkWhatsApp(p.telefono), cp=cumplePronto(p);
     const hist=new Map(); vs.forEach(v=>abonosDe(v).forEach(a=>{ const key=a.id==="ant"?"ant-"+v.id:a.id; const h=hist.get(key)||{fecha:a.fecha||v.fecha,monto:0}; h.monto+=num(a.monto); hist.set(key,h); }));
     const abonosLista=[...hist.values()].sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||""));
@@ -1749,7 +1793,7 @@ const ahoraTexto = () => new Date().toLocaleString("es-DO",{day:"numeric",month:
 const pct = n => `${(isFinite(n)?n:0).toFixed(0)}%`;
 
 function repEstadoCuenta(k){
-  const c = clientesAgrupados().find(x=>x.k===k); const p=(c&&c.perfil)||{};
+  const c = clientesAgrupados(true).find(x=>x.k===k); const p=(c&&c.perfil)||{};
   const vs = NEG.ventas.filter(v=>claveCliente(v.cliente)===k);
   const mov=[];
   vs.forEach(v=>{ const bruto=brutoV(v), unit=num(v.cantidad)?bruto/num(v.cantidad):0;
@@ -2210,8 +2254,8 @@ function formPedido(productoId, estado){
   const opciones = sel => NEG.items.map(i=>{ const q=quedan(i); return `<option value="${i.id}" ${i.id===sel?"selected":""}>${esc(i.nombre)} — ${q>0?`quedan ${q}`:"agotado"} · ganas ${dinero(num(i.precio)-num(i.costo))}</option>`; }).join("");
   abrirHoja(`<form class="form" id="fp">
     <h2>Registrar venta</h2>
-    <label class="field">Cliente<input name="cliente" list="lcp" required placeholder="Nombre de quien compró" autocomplete="off"></label>
-    <datalist id="lcp">${nombres.map(n=>`<option value="${esc(n)}">`).join("")}</datalist>
+    <label class="field">Cliente<span class="clsearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20.2c.9-3.7 3.8-5.7 7.2-5.7s6.3 2 7.2 5.7"/></svg><input name="cliente" required placeholder="Buscar o escribir cliente" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="clsugs" aria-expanded="false"></span></label>
+    <div id="clsugs" class="clsugs" role="listbox" hidden></div>
     <div id="clinfo" aria-live="polite"></div>
     <div id="plines"></div>
     <button type="button" class="btn ghost" id="padd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar otro producto</button>
@@ -2263,12 +2307,14 @@ function formPedido(productoId, estado){
     const parecidos = n => { const t=normC(n); if(t.length<2) return [];
       return clientesAgrupados().filter(c=>{ const k=normC(c.nombre); return k===t || k.includes(t) || t.includes(k) || k.split(" ")[0]===t.split(" ")[0]; }).slice(0,3); };
     const revisarCliente=()=>{ const n=f.cliente.value.trim(), box=$("#clinfo");
-      if(!n || existeCli(n)){ box.innerHTML=""; return true; }
+      if(!n || existeCli(n)){ box.innerHTML=""; delete box.dataset.n; return true; }
+      if(box.dataset.n===n && box.querySelector(".clnew")) return false;
+      box.dataset.n=n;
       const par=parecidos(n);
       box.innerHTML=`<div class="clnew">
-        <div class="cltop"><span class="pill no">Cliente inexistente</span><span>«${esc(n)}» no está en tu lista de clientes.</span></div>
+        <div class="cltop"><span class="pill no">Cliente no registrado</span><span>«${esc(n)}» no está en tu lista de clientes. ¿Desea registrar nuevo cliente?</span></div>
         ${par.length?`<div class="clsug"><small>¿Quisiste decir?</small>${par.map(c=>`<button type="button" class="chip" data-sug="${esc(c.nombre)}">${esc(c.nombre)}</button>`).join("")}</div>`:""}
-        <button type="button" class="btn ghost" id="claddbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Agregar nuevo cliente</button>
+        <button type="button" class="btn ghost" id="claddbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Sí, registrar nuevo cliente</button>
         <div class="cladd" hidden>
           <div class="two"><label class="field">WhatsApp (opcional)<input id="cltel" type="tel" inputmode="tel" placeholder="809 000 0000"></label>
           <label class="field">Talla (opcional)<input id="cltalla" placeholder="Ej. M"></label></div>
@@ -2282,11 +2328,32 @@ function formPedido(productoId, estado){
         const d={nombre:n, telefono:$("#cltel").value.trim(), talla:$("#cltalla").value.trim(), cumple:"", zona:"", notas:"", creado:Date.now()}, id=slugCliente(n);
         try{ await NEG.cli.doc(id).set(d); if(!existeCli(n)) NEG.perfiles.push({id,...d});
           $("#clinfo").innerHTML=`<div class="clok"><span class="pill ok">Cliente agregado</span><span>«${esc(n)}» ya está en tus clientes.</span></div>`; $("#hint").textContent="";
-          if(!$("#lcp").querySelector(`option[value="${CSS.escape(n)}"]`)){ const o=document.createElement("option"); o.value=n; $("#lcp").appendChild(o); }
         }catch(err){ sv.disabled=false; sv.textContent="Reintentar"; errorGuardar(err); } }
     });
-    f.cliente.addEventListener("input",()=>{ if(!f.cliente.value.trim() || existeCli(f.cliente.value)) $("#clinfo").innerHTML=""; });
-    f.cliente.addEventListener("blur",()=>setTimeout(()=>{ if(!sheet.querySelector(".clnew") && document.activeElement!==f.cliente) revisarCliente(); },120));
+    // --- Lista de clientes registrados mientras escribes ---
+    const sugBox=$("#clsugs");
+    const mostrarSugs=()=>{ const n=f.cliente.value.trim(), t=n?normC(n):"", todos=clientesAgrupados();
+      let lista = !t ? todos.filter(c=>c.ultima||c.perfil).sort((a,b)=>(b.ultima||"").localeCompare(a.ultima||"")).slice(0,6)
+        : todos.filter(c=>normC(c.nombre).includes(t) || normC(c.nombre).split(" ").some(w=>w.startsWith(t)) || String((c.perfil||{}).telefono||"").replace(/\D/g,"").includes(n.replace(/\D/g,"")||"#")).slice(0,6);
+      const exacto = n && existeCli(n);
+      if(!todos.length && !n){ sugBox.hidden=true; f.cliente.setAttribute("aria-expanded","false"); return; }
+      sugBox.innerHTML = (lista.length ? `${!t?'<div class="clsh">Clientes recientes</div>':""}${lista.map(c=>{ const p=c.perfil||{};
+          return `<button type="button" class="clsug-item" role="option" data-cli="${esc(c.nombre)}"><span class="avatar">${esc(c.nombre.charAt(0).toUpperCase())}</span>
+            <span class="cs-t"><b>${esc(c.nombre)}</b><small>${[p.telefono, c.compras?`${c.compras} ${c.compras===1?"compra":"compras"}`:"sin compras", p.talla?`talla ${esc(p.talla)}`:""].filter(Boolean).join(" · ")}</small></span>
+            ${c.debe>0?`<span class="pill no">Debe ${dinero(c.debe)}</span>`:""}</button>`; }).join("")}` : "")
+        + (n && !exacto && !lista.length ? `<div class="clnoreg"><span class="pill no">Cliente no registrado</span><span>¿Desea registrar a «${esc(n)}» como nuevo cliente?</span><button type="button" class="btn sm" data-registrar>Registrar nuevo cliente</button></div>` : "");
+      sugBox.hidden = !sugBox.innerHTML; f.cliente.setAttribute("aria-expanded", String(!sugBox.hidden)); };
+    const ocultarSugs=()=>{ sugBox.hidden=true; f.cliente.setAttribute("aria-expanded","false"); };
+    const elegirCli=nombre=>{ f.cliente.value=nombre; ocultarSugs(); $("#clinfo").innerHTML=""; $("#hint").textContent=""; f.cliente.dispatchEvent(new Event("change")); };
+    sugBox.addEventListener("pointerdown",e=>e.preventDefault());
+    sugBox.addEventListener("click",e=>{ const it=e.target.closest("[data-cli]"); if(it) return elegirCli(it.dataset.cli);
+      if(e.target.closest("[data-registrar]")){ ocultarSugs(); revisarCliente(); const b=$("#claddbtn"); if(b) b.click(); } });
+    f.cliente.addEventListener("focus",mostrarSugs);
+    f.cliente.addEventListener("click",()=>{ if(sugBox.hidden) mostrarSugs(); });
+    if(document.activeElement===f.cliente) mostrarSugs();
+    f.cliente.addEventListener("input",()=>{ mostrarSugs(); if(!f.cliente.value.trim() || existeCli(f.cliente.value)) $("#clinfo").innerHTML=""; });
+    f.cliente.addEventListener("keydown",e=>{ if(e.key==="Enter" && !sugBox.hidden){ const first=sugBox.querySelector("[data-cli]"); if(first && !existeCli(f.cliente.value)){ e.preventDefault(); elegirCli(first.dataset.cli); } } if(e.key==="Escape" && !sugBox.hidden){ e.preventDefault(); e.stopPropagation(); ocultarSugs(); } });
+    f.cliente.addEventListener("blur",()=>setTimeout(()=>{ ocultarSugs(); if(!sheet.querySelector(".clnew") && document.activeElement!==f.cliente) revisarCliente(); },150));
     f.cliente.addEventListener("change",()=>{ revisarCliente(); L.forEach(l=>{ if(!l.tocado){ const u=ultimoPrecio(f.cliente.value,l.productoId); l.precio=u!=null?u:num(item(l.productoId).precio); } }); pintarLineas(); pv(); });
     f.desc.oninput=pv; f.dtipo.onchange=pv; f.abono.oninput=pv;
     $("#todo").onclick=()=>{ f.abono.value=Math.round(totales().total*100)/100; pv(); };
@@ -2346,6 +2413,123 @@ function imprimirDoc(d){
   window.addEventListener("afterprint",fin);
   setTimeout(()=>{ try{ window.print(); }catch(e){ fin(); avisar("Para imprimir, descarga el PDF"); } setTimeout(fin,60000); },200);
 }
+
+/* ============ Selección múltiple para eliminar (mantener presionado) ============ */
+const SEL = { activo:false, tipo:"", ids:new Set(), timer:null, x:0, y:0, recien:false };
+function tipoSeleccion(){
+  if(NEG.sub==="ventas" && NEG.vseg==="ventas") return "ventas";
+  if(NEG.sub==="clientes") return "clientes";
+  if(NEG.sub==="inventario") return "inventario";
+  return "";
+}
+function claveFila(row){
+  if(row.dataset.venta) return "v:"+row.dataset.venta;
+  if(row.dataset.pedido) return "p:"+row.dataset.pedido;
+  if(row.dataset.cliente) return "c:"+row.dataset.cliente;
+  if(row.dataset.item) return "i:"+row.dataset.item;
+  return "";
+}
+const filaSeleccionable = el => { const t=tipoSeleccion(); if(!t) return null;
+  const r=el.closest(".rows > .rowi"); if(!r || !view.contains(r)) return null;
+  if(t==="ventas" && (r.dataset.venta||r.dataset.pedido)) return r;
+  if(t==="clientes" && r.dataset.cliente) return r;
+  if(t==="inventario" && r.dataset.item) return r;
+  return null; };
+function entrarSeleccion(row){
+  SEL.activo=true; SEL.tipo=tipoSeleccion(); SEL.ids=new Set([claveFila(row)]);
+  if(navigator.vibrate) try{ navigator.vibrate(18); }catch(e){}
+  document.body.classList.add("seleccionando"); marcarSeleccion();
+}
+function salirSeleccion(){ SEL.activo=false; SEL.ids.clear(); document.body.classList.remove("seleccionando"); marcarSeleccion(); }
+function marcarSeleccion(){
+  const bar=$("#selbar"); if(!bar) return;
+  if(SEL.activo && SEL.tipo!==tipoSeleccion()) { SEL.activo=false; SEL.ids.clear(); document.body.classList.remove("seleccionando"); }
+  view.querySelectorAll(".rows > .rowi").forEach(r=>{ const k=claveFila(r), on=SEL.activo && SEL.ids.has(k);
+    r.classList.toggle("sel-on",on); r.classList.toggle("sel-modo",SEL.activo && !!filaSeleccionable(r));
+    let ck=r.querySelector(".selck"); if(SEL.activo && filaSeleccionable(r)){ if(!ck){ ck=document.createElement("i"); ck.className="selck"; ck.setAttribute("aria-hidden","true"); ck.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'; r.appendChild(ck); } r.setAttribute("aria-pressed",String(on)); }
+    else { if(ck) ck.remove(); r.removeAttribute("aria-pressed"); } });
+  const n=SEL.ids.size, nom={ventas:["venta","ventas"],clientes:["cliente","clientes"],inventario:["producto","productos"]}[SEL.tipo]||["",""];
+  bar.hidden=!SEL.activo;
+  if(SEL.activo) bar.innerHTML=`<button class="sb-x" data-sel-salir aria-label="Cancelar selección"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <b>${n} ${n===1?nom[0]:nom[1]}</b>
+    <button class="sb-todo" data-sel-todo>Todo</button>
+    <button class="sb-del" data-sel-borrar ${n?"":"disabled"}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>Eliminar</button>`;
+}
+// mantener presionado
+view.addEventListener("pointerdown",e=>{ SEL.recien=false; if(e.button>0) return; const r=filaSeleccionable(e.target); if(!r || SEL.activo) return;
+  SEL.x=e.clientX; SEL.y=e.clientY; clearTimeout(SEL.timer);
+  SEL.timer=setTimeout(()=>{ SEL.recien=true; entrarSeleccion(r); setTimeout(()=>{ SEL.recien=false; },800); },520); });
+["pointerup","pointercancel","pointerleave"].forEach(ev=>view.addEventListener(ev,()=>clearTimeout(SEL.timer)));
+view.addEventListener("pointermove",e=>{ if(Math.abs(e.clientX-SEL.x)>10 || Math.abs(e.clientY-SEL.y)>10) clearTimeout(SEL.timer); });
+window.addEventListener("scroll",()=>clearTimeout(SEL.timer),{passive:true});
+view.addEventListener("contextmenu",e=>{ const r=filaSeleccionable(e.target); if(!r) return; e.preventDefault(); clearTimeout(SEL.timer);
+  if(!SEL.activo){ SEL.recien=false; entrarSeleccion(r); } });
+// toques en modo selección (antes que los demás manejadores)
+view.addEventListener("click",e=>{
+  if(SEL.recien){ SEL.recien=false; if(filaSeleccionable(e.target)){ e.preventDefault(); e.stopImmediatePropagation(); return; } }
+  if(!SEL.activo) return;
+  const r=filaSeleccionable(e.target);
+  if(r){ e.preventDefault(); e.stopImmediatePropagation(); const k=claveFila(r); SEL.ids.has(k)?SEL.ids.delete(k):SEL.ids.add(k); marcarSeleccion(); return; }
+  if(e.target.closest("[data-vseg],[data-seg],[data-nueva-venta],[data-nuevo-item],[data-nuevo-cliente],[data-pedido],[data-venta],[data-cliente],[data-item]")){ salirSeleccion(); }
+}, true);
+document.addEventListener("click",e=>{
+  if(e.target.closest("[data-sel-salir]")) return salirSeleccion();
+  if(e.target.closest("[data-sel-todo]")){ const filas=[...view.querySelectorAll(".rows > .rowi")].filter(r=>filaSeleccionable(r)).map(claveFila);
+    const todas=filas.every(k=>SEL.ids.has(k)); SEL.ids = todas ? new Set() : new Set(filas); return marcarSeleccion(); }
+  if(e.target.closest("[data-sel-borrar]")) return confirmarBorradoMultiple();
+});
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && SEL.activo && !sheet.open) salirSeleccion(); });
+window.addEventListener("hashchange",()=>{ if(SEL.activo) salirSeleccion(); });
+
+function confirmarBorradoMultiple(){
+  const ids=[...SEL.ids], tipo=SEL.tipo; if(!ids.length) return;
+  let titulo, detalle="", lista=[], tareas=[], tareasConservar=null, conOpciones=false;
+  if(tipo==="ventas"){
+    const vs=[]; ids.forEach(k=>{ const [t,id]=[k[0],k.slice(2)]; if(t==="v"){ const v=NEG.ventas.find(x=>x.id===id); if(v) vs.push(v); } else lineasPedido(id).forEach(v=>vs.push(v)); });
+    titulo=`¿Eliminar ${ids.length} ${ids.length===1?"venta":"ventas"}?`;
+    detalle=`Total de lo que se borra: <b>${dinero(vs.reduce((s,v)=>s+totalV(v),0))}</b>. Las piezas vuelven a tu inventario y los abonos de estas ventas también se borran.`;
+    lista=ids.map(k=>{ if(k[0]==="p"){ const ls=lineasPedido(k.slice(2)); return `${ls[0]?esc(ls[0].cliente):""} · ${ls.length} productos`; } const v=NEG.ventas.find(x=>x.id===k.slice(2)); return v?`${esc(v.cliente)} · ${esc(v.producto)}`:""; });
+    tareas=vs.map(v=>()=>NEG.ven.doc(v.id).delete());
+  } else if(tipo==="clientes"){
+    const ks=ids.map(k=>k.slice(2)), vs=NEG.ventas.filter(v=>ks.includes(claveCliente(v.cliente))), qs=NEG.cotizaciones.filter(c=>ks.includes(claveCliente(c.cliente))), ps=NEG.perfiles.filter(p=>ks.includes(claveCliente(p.nombre)));
+    const nAb=vs.reduce((s,v)=>s+abonosDe(v).length,0), nDev=vs.reduce((s,v)=>s+devDe(v).length,0);
+    titulo=`¿Eliminar ${ks.length} ${ks.length===1?"cliente":"clientes"}?`;
+    conOpciones = vs.length>0 || qs.length>0;
+    detalle = conOpciones ? `${ks.length===1?"Este cliente tiene":"Estos clientes tienen"} ${vs.length} ${vs.length===1?"venta":"ventas"}, ${nAb} ${nAb===1?"abono":"abonos"} y ${nDev} ${nDev===1?"devolución":"devoluciones"}${qs.length?`, y ${qs.length} ${qs.length===1?"cotización":"cotizaciones"}`:""}. ¿Qué quieres hacer con eso?` : "Estos clientes no tienen ventas.";
+    lista=ks.map(k=>{ const c=clientesAgrupados(true).find(x=>x.k===k); return c?esc(c.nombre):k; });
+    const quitarDeLista = ks.map(k=>async()=>{ const c=clientesAgrupados(true).find(x=>x.k===k); const p=(c&&c.perfil)||{};
+      const {id:_id, ...resto}=p; await NEG.cli.doc(p.id||slugCliente(c?c.nombre:k)).set({...resto, nombre:(c?c.nombre:p.nombre)||k, eliminado:true, eliminadoEn:Date.now()}); });
+    tareasConservar = quitarDeLista.map(f=>async()=>{ await f(); });
+    tareas=[...vs.map(v=>()=>NEG.ven.doc(v.id).delete()), ...qs.map(c=>()=>NEG.cot.doc(c.id).delete()), ...ps.map(p=>()=>NEG.cli.doc(p.id).delete())];
+  } else {
+    const its=ids.map(k=>NEG.items.find(i=>i.id===k.slice(2))).filter(Boolean);
+    titulo=`¿Eliminar ${its.length} ${its.length===1?"producto":"productos"}?`;
+    detalle="Se borran del inventario con sus fotos. Las ventas que ya registraste de estos productos no se borran.";
+    lista=its.map(i=>`${esc(i.nombre)} · quedan ${Math.max(0,quedan(i))}`);
+    tareas=its.map(i=>async()=>{ await NEG.inv.doc(i.id).delete(); if(i.foto&&ASSETS) ASSETS.delete(i.foto).catch(()=>{}); });
+  }
+  abrirHoja(`<div class="form"><h2>${titulo}</h2>
+    <p style="margin:0">${detalle}</p>
+    <div class="rows">${lista.slice(0,6).map(t=>`<div class="abitem"><span>${t}</span></div>`).join("")}${lista.length>6?`<p class="note">y ${lista.length-6} más…</p>`:""}</div>
+    ${conOpciones?`<div class="delopts" role="radiogroup" aria-label="Qué hacer con sus ventas">
+      <label class="delopt"><input type="radio" name="delmodo" value="conservar" checked><span><b>Conservar sus ventas, abonos y devoluciones</b><small>Solo se quita de tu lista de clientes. Tus ganancias y reportes no cambian. Si le vuelves a vender, reaparece con su historial.</small></span></label>
+      <label class="delopt peligro"><input type="radio" name="delmodo" value="todo"><span><b>Borrar también sus ventas, abonos y devoluciones</b><small>Se borra todo su historial y sus cotizaciones. Las piezas vuelven a tu inventario.</small></span></label>
+    </div>`:""}
+    <p class="note" style="margin:0">Antes de borrar, la app guarda un respaldo automático por si te arrepientes (Resumen → Respaldos).</p>
+    <p class="hint" id="hint"></p>
+    <div class="dosbtn"><button class="btn ghost" id="delno">Cancelar</button><button class="btn peligro" id="delsi">Sí, eliminar</button></div></div>`, ()=>{
+    $("#delno").onclick=()=>sheet.close();
+    $("#delsi").onclick=async()=>{ const b=$("#delsi"); b.disabled=true; $("#delno").disabled=true;
+      try{ b.textContent="Guardando respaldo…"; await crearRespaldo("antes",true);
+        if(conOpciones && (sheet.querySelector('input[name="delmodo"]:checked')||{}).value==="conservar") tareas=tareasConservar;
+        let n=0; for(const t of tareas){ await t(); n++; b.textContent=`Eliminando ${n} de ${tareas.length}…`; }
+        const m=ids.length, msg={ventas:m===1?"Venta eliminada":`${m} ventas eliminadas`, clientes:m===1?"Cliente eliminado":`${m} clientes eliminados`, inventario:m===1?"Producto eliminado":`${m} productos eliminados`}[tipo];
+        sheet.close(); salirSeleccion(); avisar(msg);
+      }catch(err){ b.disabled=false; $("#delno").disabled=false; b.textContent="Reintentar"; errorGuardar(err); } };
+  });
+}
+// consejo la primera vez
+setTimeout(()=>{ if(!leer("tipSel",false) && NEG.estado==="ok" && !(SEG.bloqueada&&tieneClave())){ guardar("tipSel",true); avisar("Consejo: mantén presionada una venta, cliente o producto para seleccionar varios"); } }, 6000);
 
 view.addEventListener("click", e=>{
   if(e.target.closest("[data-nuevo-item]")) return formItem();
