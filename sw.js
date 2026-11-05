@@ -1,10 +1,13 @@
 // L&L Fashion — funciona sin internet.
 // Cuando cambies index.html, sube el número de versión para que los teléfonos se actualicen.
-const VERSION = "llf-v19";
+const VERSION = "llf-v20";
 const ARCHIVOS = ["./", "index.html", "manifest.json", "favicon.ico", "icons/favicon-16.png", "icons/favicon-32.png", "icons/icon-96.png", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-192.png", "icons/maskable-512.png", "icons/apple-touch-icon.png", "icons/atajo-venta.png", "icons/atajo-clientes.png", "icons/atajo-inventario.png"];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting()));
+  // Guarda cada archivo por separado: si alguno falta, la app igual se instala
+  e.waitUntil(caches.open(VERSION)
+    .then(c => Promise.allSettled(ARCHIVOS.map(u => c.add(u))))
+    .then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
