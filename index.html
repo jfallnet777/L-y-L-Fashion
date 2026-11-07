@@ -1103,8 +1103,8 @@ function formCliente(k){
   const conVentas = c && c.compras>0;
   abrirHoja(`<form class="form" id="fc">
     <h2>${c?"Datos del cliente":"Nuevo cliente"}</h2>
-    <label class="field">Nombre<input name="nombre" required value="${esc(c?c.nombre:"")}" ${conVentas?"readonly":""} placeholder="Nombre y apellido"></label>
-    ${conVentas?`<p class="note" style="margin:-6px 0 0">El nombre queda igual para que no se separen sus compras.</p>`:""}
+    <label class="field">Nombre<input name="nombre" required value="${esc(c?c.nombre:"")}" placeholder="Nombre y apellido" autocomplete="off"></label>
+    ${conVentas?`<p class="note" style="text-align:left;margin:-6px 0 0">Si corriges el nombre, se cambia también en sus ${c.compras} ${c.compras===1?"venta":"ventas"}, abonos y cotizaciones. No se pierde nada.</p>`:""}
     <label class="field">WhatsApp<input name="telefono" type="tel" inputmode="tel" value="${esc(p.telefono)}" placeholder="809 000 0000"></label>
     <div class="two">
       <label class="field">Talla<input name="talla" value="${esc(p.talla)}" placeholder="Ej. M, 28"></label>
@@ -1116,11 +1116,34 @@ function formCliente(k){
     <button class="btn block" type="submit">Guardar</button>
   </form>`, ()=>{
     const f=$("#fc");
-    f.onsubmit=async e=>{ e.preventDefault(); const nombre=f.nombre.value.trim(); if(!nombre) return;
-      if(!c && clientesAgrupados().some(x=>x.k===claveCliente(nombre))){ $("#hint").textContent="Ya tienes un cliente con ese nombre."; return; }
-      const b=f.querySelector("[type=submit]"); b.disabled=true;
+    let unir=false;
+    f.nombre.oninput=()=>{ if(unir){ unir=false; $("#hint").textContent=""; f.querySelector("[type=submit]").textContent="Guardar"; } };
+    f.onsubmit=async e=>{ e.preventDefault(); const nombre=f.nombre.value.trim().replace(/\s+/g," "); if(!nombre) return;
+      const kNuevo=claveCliente(nombre), otro=clientesAgrupados(true).find(x=>x.k===kNuevo && (!c || x.k!==c.k));
+      if(!c && otro){ $("#hint").textContent="Ya tienes un cliente con ese nombre."; return; }
+      const b=f.querySelector("[type=submit]");
+      if(otro && !unir){ unir=true; $("#hint").textContent=`Ya tienes otro cliente llamado «${otro.nombre}». Si es la misma persona, toca «Unir» y sus compras quedan juntas.`; b.textContent=`Unir con «${otro.nombre}»`; return; }
+      b.disabled=true;
       const d={nombre, telefono:f.telefono.value.trim(), talla:f.talla.value.trim(), cumple:f.cumple.value, zona:f.zona.value.trim(), notas:f.notas.value.trim(), creado:p.creado||Date.now()};
-      try{ await NEG.cli.doc(p.id||slugCliente(nombre)).set(d); sheet.close(); avisar("Cliente guardado"); hojaCliente(claveCliente(nombre)); }catch(err){ b.disabled=false; errorGuardar(err); } };
+      try{
+        if(c && c.nombre!==nombre){
+          // cambiar el nombre en todas sus ventas y cotizaciones
+          const nv=NEG.ventas.filter(v=>claveCliente(v.cliente)===c.k), nq=NEG.cotizaciones.filter(q=>claveCliente(q.cliente)===c.k);
+          let n=0; const tot=nv.length+nq.length;
+          for(const v of nv){ await NEG.ven.doc(v.id).update({cliente:nombre}); if(tot>3) b.textContent=`Actualizando ${++n} de ${tot}…`; }
+          for(const q of nq){ await NEG.cot.doc(q.id).update({cliente:nombre}); if(tot>3) b.textContent=`Actualizando ${++n} de ${tot}…`; }
+        }
+        if(otro){
+          // unir: se queda la ficha del otro y se completa con lo que falte
+          const po=otro.perfil||{}, m={...d, ...Object.fromEntries(Object.entries(po).filter(([k,v])=>k!=="id"&&v!==""&&v!=null))};
+          m.nombre=otro.nombre; m.creado=Math.min(po.creado||Date.now(), d.creado); delete m.eliminado; delete m.eliminadoEn;
+          if(c.nombre!==otro.nombre){ for(const v of NEG.ventas.filter(v=>claveCliente(v.cliente)===kNuevo && v.cliente!==otro.nombre)) await NEG.ven.doc(v.id).update({cliente:otro.nombre}); }
+          await NEG.cli.doc(po.id||slugCliente(otro.nombre)).set(m);
+          if(p.id && p.id!==po.id) await NEG.cli.doc(p.id).delete();
+          sheet.close(); avisar("Clientes unidos"); hojaCliente(kNuevo); return;
+        }
+        await NEG.cli.doc(p.id||slugCliente(nombre)).set({...d,...(p.demo?{demo:true}:{})}); sheet.close(); avisar(c&&c.nombre!==nombre?"Nombre corregido":"Cliente guardado"); hojaCliente(kNuevo);
+      }catch(err){ b.disabled=false; b.textContent="Guardar"; errorGuardar(err); } };
   });
 }
 
