@@ -523,6 +523,34 @@ body.seleccionando .toolbar .btn.sm{opacity:.4;pointer-events:none}
 .delopt input{width:20px;height:20px;margin-top:2px;accent-color:var(--morado)}
 .delopt b{font-weight:500;display:block}
 .delopt small{color:var(--ink-soft);font-size:.82rem;line-height:1.35}
+
+/* Cajas */
+.cjn{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;margin-left:4px;border-radius:999px;font-size:.72rem;background:color-mix(in srgb,var(--azul-claro) 70%,var(--surface));color:var(--azul-ink)}
+.cjtile{background:color-mix(in srgb,var(--lila) 32%,var(--surface))!important;color:var(--morado-ink)!important}
+.cjtile svg{width:26px!important;height:26px!important}
+.cjrow .cjbar{grid-column:2 / -1}
+.cjbar{position:relative;display:block;height:20px;border-radius:999px;background:var(--surface-2);overflow:hidden;margin-top:6px}
+.cjbar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--lila),var(--azul));border-radius:999px;transition:width .4s}
+.cjbar em{position:relative;display:block;font-style:normal;font-size:.72rem;line-height:20px;padding:0 10px;color:var(--ink);font-weight:500}
+.cjbar.big{height:26px;margin:0 0 12px}.cjbar.big em{line-height:26px;font-size:.8rem}
+.cjempty .cjbig{display:block;width:64px;height:64px;margin:0 auto 6px;color:var(--morado)}
+.cjempty .cjbig svg{width:64px;height:64px}
+.cjic{display:inline-flex;align-items:center;gap:3px}
+.cjic svg{width:14px;height:14px;flex:none}
+.subhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.form .delopt{margin-bottom:8px}
+.cjlist{display:grid;gap:8px;max-height:52vh;overflow:auto;margin:4px 0 14px;padding:2px}
+.cjpick{display:grid;grid-template-columns:auto auto 1fr;gap:10px;align-items:center;background:var(--surface);border-radius:16px;padding:8px 12px;box-shadow:var(--shadow);border:1.5px solid transparent}
+.cjpick:has(input:checked){border-color:var(--azul);background:color-mix(in srgb,var(--azul-claro) 25%,var(--surface))}
+.cjpick input{width:20px;height:20px;accent-color:var(--morado)}
+.cjpick b{font-weight:500;display:block}
+.cjpick small{color:var(--ink-soft);font-size:.8rem}
+.cjnew{display:flex;gap:8px;align-items:center}.cjnew input{flex:1}
+.selbar.concaja{grid-template-columns:auto 1fr auto auto auto}
+.selbar .sb-caja{display:flex;gap:5px;align-items:center;padding:9px 12px;border-radius:999px;color:inherit;font-size:.9rem;background:rgba(255,255,255,.12)}
+.selbar .sb-caja svg{width:17px;height:17px}
+.selbar .sb-caja:disabled{opacity:.45}
+@media (max-width:440px){ .selbar .sb-caja span{display:none} .selbar .sb-caja{padding:9px 11px} }
 .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--bg);padding:11px 20px;border-radius:999px;transition:.25s;z-index:50;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -576,9 +604,9 @@ const num = v => { const n=parseFloat(String(v).replace(",",".")); return isFini
 const BD = { db:null };
 function abrirBD(){
   return new Promise((res,rej)=>{
-    const r = indexedDB.open("llfashion", 5);
+    const r = indexedDB.open("llfashion", 6);
     r.onupgradeneeded = () => { const d=r.result;
-      ["inventario","ventas","clientes","cotizaciones"].forEach(n=>{ if(!d.objectStoreNames.contains(n)) d.createObjectStore(n,{keyPath:"id"}); });
+      ["inventario","ventas","clientes","cotizaciones","cajas"].forEach(n=>{ if(!d.objectStoreNames.contains(n)) d.createObjectStore(n,{keyPath:"id"}); });
       if(!d.objectStoreNames.contains("fotos")) d.createObjectStore("fotos");
       if(!d.objectStoreNames.contains("respaldos")) d.createObjectStore("respaldos",{keyPath:"id"});
       if(!d.objectStoreNames.contains("config")) d.createObjectStore("config"); };
@@ -594,6 +622,7 @@ async function recargar(){
   NEG.ventas = (await todos("ventas")).sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||"")||(b.creado||0)-(a.creado||0));
   NEG.perfiles = await todos("clientes");
   NEG.cotizaciones = await todos("cotizaciones");
+  NEG.cajas = await todos("cajas");
   NEG.listoI = NEG.listoV = true; refrescarNegocio(); programarCarpeta(); actualizarAviso();
 }
 /* Misma forma que usaba antes la app: col.add(), col.doc(id).set/update/delete() */
@@ -621,7 +650,7 @@ const FOTOS_LOCAL = {
 async function iniciarNegocio(){
   try{
     BD.db = await abrirBD();
-    NEG.inv = coleccion("inventario"); NEG.ven = coleccion("ventas"); NEG.cli = coleccion("clientes"); NEG.cot = coleccion("cotizaciones"); NEG.db = BD.db;
+    NEG.inv = coleccion("inventario"); NEG.ven = coleccion("ventas"); NEG.cli = coleccion("clientes"); NEG.cot = coleccion("cotizaciones"); NEG.caj = coleccion("cajas"); NEG.db = BD.db;
     ASSETS = FOTOS_LOCAL;
     await cargarFotos();
     SEG.config = leer("seguridad", null); SEG.listo = true;
@@ -652,7 +681,7 @@ async function descargarCopia(){
   const fotos = {};
   const keys = await tx("fotos","readonly",st=>st.getAllKeys());
   for(const k of keys){ const b=await tx("fotos","readonly",st=>st.get(k)); if(b instanceof Blob){ const d=await aDataURL(b); if(d) fotos[k]=d; } }
-  const datos = {app:"llfashion", version:1, fecha:new Date().toISOString(), inventario:NEG.items, ventas:NEG.ventas, clientes:NEG.perfiles, cotizaciones:NEG.cotizaciones, fotos};
+  const datos = {app:"llfashion", version:1, fecha:new Date().toISOString(), inventario:NEG.items, ventas:NEG.ventas, clientes:NEG.perfiles, cotizaciones:NEG.cotizaciones, cajas:NEG.cajas, fotos};
   const blob = new Blob([JSON.stringify(datos)],{type:"application/json"});
   const a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`LL-Fashion-copia-${hoy()}.json`;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
@@ -667,12 +696,13 @@ async function restaurarCopia(file){
     <button class="btn block" id="okRest">Restaurar</button></div>`, ()=>{
     $("#okRest").onclick = async ()=>{ $("#okRest").disabled=true; await crearRespaldo("antes",true);
       try{
-        await tx("inventario","readwrite",st=>st.clear()); await tx("ventas","readwrite",st=>st.clear()); await tx("clientes","readwrite",st=>st.clear()); await tx("cotizaciones","readwrite",st=>st.clear()); await tx("fotos","readwrite",st=>st.clear());
+        await tx("inventario","readwrite",st=>st.clear()); await tx("ventas","readwrite",st=>st.clear()); await tx("clientes","readwrite",st=>st.clear()); await tx("cotizaciones","readwrite",st=>st.clear()); await tx("fotos","readwrite",st=>st.clear()); await tx("cajas","readwrite",st=>st.clear());
         FOTOS.forEach(u=>URL.revokeObjectURL(u)); FOTOS.clear();
         for(const it of datos.inventario||[]) await tx("inventario","readwrite",st=>st.put(it));
         for(const v of datos.ventas||[]) await tx("ventas","readwrite",st=>st.put(v));
         for(const c of datos.clientes||[]) await tx("clientes","readwrite",st=>st.put(c));
         for(const c of datos.cotizaciones||[]) await tx("cotizaciones","readwrite",st=>st.put(c));
+        for(const c of datos.cajas||[]) await tx("cajas","readwrite",st=>st.put(c));
         for(const [k,d] of Object.entries(datos.fotos||{})){ try{ const b=await (await fetch(d)).blob(); await tx("fotos","readwrite",st=>st.put(b,k)); FOTOS.set(k,URL.createObjectURL(b)); }catch(e){} }
         sheet.close(); await recargar(); avisar("Copia restaurada");
       }catch(e){ $("#okRest").disabled=false; avisar("No se pudo restaurar la copia"); }
@@ -720,8 +750,8 @@ function vistaNegocio(){
 const coincide = (...campos) => !NEG.q || campos.some(c=>String(c||"").toLowerCase().includes(NEG.q.toLowerCase()));
 const sinResultados = () => `<div class="empty"><h3>Nada coincide con “${esc(NEG.q)}”</h3>Prueba con otra palabra.</div>`;
 
-function negInventario(){
-  const L = NEG.items.filter(i=>coincide(i.nombre,i.tienda,i.nota));
+function negInventarioProductos(){
+  const L = NEG.items.filter(i=>coincide(i.nombre,i.tienda,i.nota,nombreCaja(i)));
   const agotados = NEG.items.filter(i=>quedan(i)<=0).length;
   return `<div class="toolbar"><h3>${NEG.items.length} productos${agotados?` · <span class="low">${agotados} agotados</span>`:""}</h3><button class="btn sm" data-nuevo-item><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Producto</button></div>
   <div class="miniacts"><button class="btn ghost" data-exportar ${NEG.items.length?"":"disabled"}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 19h14"/></svg>Exportar a Excel</button><label class="btn ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7 9l5-5 5 5M5 19h14"/></svg>Importar Excel<input type="file" id="importar" class="sr" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"></label><button class="btn ghost" data-rep="inventario" ${NEG.items.length?"":"disabled"}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6" stroke-linecap="round"/></svg>Reporte PDF</button></div>
@@ -730,7 +760,7 @@ function negInventario(){
   : `<div class="rows">${L.map(i=>{ const q=quedan(i); return `
     <button class="rowi withpic" data-item="${i.id}">
       ${miniatura(i,56)}<span class="t">${esc(i.nombre)}</span><span class="v">${dinero(num(i.precio))}</span>
-      <span class="s">${i.tienda?esc(i.tienda)+" · ":""}Costo ${dinero(num(i.costo))} · Ganas ${dinero(num(i.precio)-num(i.costo))}</span>
+      <span class="s">${cajaDe(i)?`<span class="cjic">${ICO_CAJA}${esc(nombreCaja(i))}</span> · `:""}${i.tienda?esc(i.tienda)+" · ":""}Costo ${dinero(num(i.costo))} · Ganas ${dinero(num(i.precio)-num(i.costo))}</span>
       <span class="s r"><span class="${q<=0?"low":""}">${q<=0?"Agotado":`Quedan ${q}`}</span></span>
     </button>`;}).join("")}</div>`}`;
 }
@@ -772,8 +802,8 @@ async function prepararFoto(file){
   }catch(e){ return file; }
 }
 
-function formItem(item){
-  const it = item || {nombre:"",costo:"",precio:"",cantidad:1,fecha:hoy(),nota:"",tienda:"",foto:""};
+function formItem(item, pre){
+  const it = item || {nombre:"",costo:"",precio:"",cantidad:1,fecha:hoy(),nota:"",tienda:"",foto:"",cajaId:"",...(pre||{})};
   let foto = it.foto || "", subiendo = false;
   abrirHoja(`<form class="form" id="f">
     <h2>${item?"Editar producto":"Nuevo producto"}</h2>
@@ -790,6 +820,8 @@ function formItem(item){
       <label class="field">Cantidad comprada<input name="cantidad" type="number" inputmode="numeric" min="0" step="1" required value="${esc(it.cantidad)}"></label>
       <label class="field">Fecha de compra<input name="fecha" type="date" value="${esc(it.fecha||hoy())}"></label>
     </div>
+    <label class="field">Caja (opcional)<select name="caja">${opcionesCaja(it.cajaId||"")}</select></label>
+    <label class="field" id="cjnueva" hidden>Nombre de la caja nueva<input name="cajanom" placeholder="Ej. Caja Shein noviembre" autocomplete="off"></label>
     <label class="field">¿De dónde vino? (opcional)<input name="tienda" list="lt" value="${esc(it.tienda)}" placeholder="Ej. Shein, tienda local, suplidor, paca" autocomplete="off"></label>
     <datalist id="lt">${[...new Set([...NEG.items.map(x=>(x.tienda||"").trim()),"Shein","Temu","Amazon","Tienda local","Suplidor","Paca","Feria"].filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join("")}</datalist>
     <label class="field">Nota (opcional)<input name="nota" value="${esc(it.nota)}" placeholder="Ej. Talla M, suplidor Juan"></label>
@@ -800,7 +832,7 @@ function formItem(item){
   </form>`, ()=>{
     const f=$("#f");
     const pv=()=>{ const c=num(f.costo.value),p=num(f.precio.value),q=num(f.cantidad.value); $("#pv").innerHTML=`<span>Ganas ${dinero(p-c)} c/u</span><span>Si vendes todo: <b>${dinero((p-c)*q)}</b></span>`; };
-    f.oninput=pv; pv();
+    f.oninput=pv; pv(); activarCampoCaja(f);
     const file=$("#file");
     if(file) file.onchange=async()=>{
       const fl=file.files[0]; if(!fl) return;
@@ -816,10 +848,10 @@ function formItem(item){
     f.onsubmit=async e=>{ e.preventDefault();
       if(subiendo){ $("#hint").textContent="Espera a que termine de subir la foto."; return; }
       const b=f.querySelector("[type=submit]"); b.disabled=true;
-      const d={nombre:f.nombre.value.trim(),costo:num(f.costo.value),precio:num(f.precio.value),cantidad:num(f.cantidad.value),fecha:f.fecha.value||hoy(),nota:f.nota.value.trim(),tienda:f.tienda.value.trim(),foto};
+      const d={nombre:f.nombre.value.trim(),costo:num(f.costo.value),precio:num(f.precio.value),cantidad:num(f.cantidad.value),fecha:f.fecha.value||hoy(),nota:f.nota.value.trim(),tienda:f.tienda.value.trim(),foto,cajaId:await cajaDelForm(f)};
       try{ item ? await NEG.inv.doc(item.id).set({...d,demo:!!item.demo,creado:item.creado||Date.now()}) : await NEG.inv.add({...d,creado:Date.now()});
         if(item&&item.foto&&item.foto!==foto&&ASSETS) ASSETS.delete(item.foto).catch(()=>{});
-        sheet.close(); avisar(item?"Cambios guardados":"Producto agregado"); }catch(err){ b.disabled=false; errorGuardar(err); } };
+        if(pre&&(pre._volver||pre.cajaId)){ avisar(item?"Cambios guardados":"Producto agregado a la caja"); hojaCaja(pre._volver||pre.cajaId); } else { sheet.close(); avisar(item?"Cambios guardados":"Producto agregado"); } }catch(err){ b.disabled=false; errorGuardar(err); } };
     if(item) confirmarBorrado($("#del"), async()=>{ await NEG.inv.doc(item.id).delete(); if(item.foto&&ASSETS) ASSETS.delete(item.foto).catch(()=>{}); });
   });
 }
@@ -1606,15 +1638,15 @@ function leerCsv(txt){
 }
 const serialAFecha = n => { const d=new Date(Date.UTC(1899,11,30)+n*864e5); return d.toISOString().slice(0,10); };
 
-const COLS_PROD = ["Nombre","De dónde vino","Costo","Precio de venta","Cantidad comprada","Disponibles","Fecha de compra","Nota"];
+const COLS_PROD = ["Nombre","De dónde vino","Costo","Precio de venta","Cantidad comprada","Disponibles","Fecha de compra","Nota","Caja"];
 async function exportarProductos(){
-  const filas=[COLS_PROD, ...NEG.items.map(i=>[i.nombre||"",i.tienda||"",num(i.costo),num(i.precio),num(i.cantidad),Math.max(0,quedan(i)),i.fecha||"",i.nota||""])];
-  const ok=await guardarArchivo(`Productos-LL-Fashion-${hoy()}.xlsx`, crearXlsx("Productos",filas,[30,18,10,14,18,12,16,30]));
+  const filas=[COLS_PROD, ...NEG.items.map(i=>[i.nombre||"",i.tienda||"",num(i.costo),num(i.precio),num(i.cantidad),Math.max(0,quedan(i)),i.fecha||"",i.nota||"",nombreCaja(i)])];
+  const ok=await guardarArchivo(`Productos-LL-Fashion-${hoy()}.xlsx`, crearXlsx("Productos",filas,[30,18,10,14,18,12,16,30,24]));
   if(ok) avisar("Excel listo");
 }
 const normCab = s => String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z]/g,"");
 const MAPA_CAB = {nombre:["nombre","producto","articulo","descripcion"], tienda:["dedondevino","proveedor","tienda","origen","suplidor","comprado"], costo:["costo","mecosto","preciodecosto","costounitario"],
-  precio:["preciodeventa","precio","precionormal","venta","pvp"], cantidad:["cantidadcomprada","cantidad","unidades","piezas","stock","existencia"], fecha:["fechadecompra","fecha"], nota:["nota","notas","comentario","observacion"]};
+  precio:["preciodeventa","precio","precionormal","venta","pvp"], cantidad:["cantidadcomprada","cantidad","unidades","piezas","stock","existencia"], fecha:["fechadecompra","fecha"], nota:["nota","notas","comentario","observacion"], caja:["caja","lote","paquete","bulto"]};
 async function importarProductos(file){
   let filas;
   try{ const buf=await file.arrayBuffer(); filas = /\.csv$|\.txt$/i.test(file.name) ? leerCsv(new TextDecoder().decode(buf)) : await leerXlsx(buf); }
@@ -1626,7 +1658,7 @@ async function importarProductos(file){
   if(idx.nombre==null){ abrirHoja(`<div class="form"><h2>No encontré la columna «Nombre»</h2><p>La primera fila del Excel debe tener los títulos de las columnas, por ejemplo: ${COLS_PROD.join(", ")}.</p><p class="note">Consejo: descarga tus productos en Excel y úsalo como plantilla.</p></div>`); return; }
   const val=(f,k)=>idx[k]==null?undefined:f[idx[k]];
   const prods=filas.slice(1).map(f=>{ let fecha=val(f,"fecha"); if(typeof fecha==="number") fecha=serialAFecha(fecha); else if(fecha){ const m=String(fecha).match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/); fecha=m?`${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`:/^\d{4}-\d{2}-\d{2}/.test(fecha)?String(fecha).slice(0,10):""; }
-    return {nombre:String(val(f,"nombre")??"").trim(), tienda:String(val(f,"tienda")??"").trim(), costo:num(val(f,"costo")), precio:num(val(f,"precio")), cantidad:num(val(f,"cantidad")), fecha:fecha||hoy(), nota:String(val(f,"nota")??"").trim()}; })
+    return {nombre:String(val(f,"nombre")??"").trim(), tienda:String(val(f,"tienda")??"").trim(), costo:num(val(f,"costo")), precio:num(val(f,"precio")), cantidad:num(val(f,"cantidad")), fecha:fecha||hoy(), nota:String(val(f,"nota")??"").trim(), _caja:String(val(f,"caja")??"").trim()}; })
     .filter(p=>p.nombre);
   const existe=p=>NEG.items.find(i=>String(i.nombre).trim().toLowerCase()===p.nombre.toLowerCase());
   const nuevos=prods.filter(p=>!existe(p)), act=prods.filter(existe);
@@ -1638,7 +1670,7 @@ async function importarProductos(file){
     <div class="rows">${prods.slice(0,5).map(p=>`<div class="abitem"><span>${esc(p.nombre)}${existe(p)?' <span class="pill gris">actualizar</span>':""}</span><b>${dinero(p.precio)}</b></div>`).join("")}${prods.length>5?`<p class="note">y ${prods.length-5} más…</p>`:""}</div>
     <button class="btn block" id="impok">Importar ${prods.length}</button><p class="hint" id="hint"></p></div>`, ()=>{
     $("#impok").onclick=async()=>{ const b=$("#impok"); b.disabled=true; let n=0;
-      try{ for(const p of prods){ const e=existe(p);
+      try{ for(const p of prods){ const e=existe(p); { const nc=p._caja; delete p._caja; if(nc) p.cajaId=await idCajaPorNombre(nc); }
           if(e){ const d={...e,...p}; if(idx.costo==null) d.costo=e.costo; if(idx.precio==null) d.precio=e.precio; if(idx.cantidad==null) d.cantidad=e.cantidad; if(idx.tienda==null) d.tienda=e.tienda; if(idx.fecha==null) d.fecha=e.fecha; if(idx.nota==null) d.nota=e.nota; delete d.id; await NEG.inv.doc(e.id).set(d); }
           else await NEG.inv.add({...p,foto:"",creado:Date.now()});
           n++; b.textContent=`Importando ${n} de ${prods.length}…`; }
@@ -1672,17 +1704,19 @@ function datosDemo(){
   const cotizaciones=[
     {id:"demo-q1",numero:"COT-0001",cliente:"Ana Rosario",fecha:d(2),validez:7,items:[{productoId:"demo-p1",nombre:"Vestido largo lila",cantidad:1,precio:1800},{productoId:"demo-p7",nombre:"Sandalias doradas",cantidad:1,precio:1450}],descuento:0,descPct:10,notas:"Envío incluido a Cotuí",estado:"abierta",creado:1,demo:true},
     {id:"demo-q2",numero:"COT-0002",cliente:"Yokasta Díaz",fecha:d(15),validez:5,items:[{productoId:"demo-p3",nombre:"Jean de tiro alto",cantidad:2,precio:1550}],descuento:100,descPct:"",notas:"",estado:"abierta",creado:2,demo:true}];
-  return {inventario:items, clientes, ventas, cotizaciones};
+  const cajas=[{id:"demo-k1",nombre:"Caja Shein — prueba",tienda:"Shein",fecha:d(62),costo:6500,nota:"",creado:1,demo:true}];
+  for(const i of items) if(["demo-p1","demo-p2","demo-p5"].includes(i.id)) i.cajaId="demo-k1";
+  return {inventario:items, clientes, ventas, cotizaciones, cajas};
 }
-const contarDemo = () => [NEG.items,NEG.ventas,NEG.perfiles,NEG.cotizaciones].reduce((s,a)=>s+a.filter(x=>x.demo).length,0);
+const contarDemo = () => [NEG.items,NEG.ventas,NEG.perfiles,NEG.cotizaciones,NEG.cajas||[]].reduce((s,a)=>s+a.filter(x=>x.demo).length,0);
 async function cargarDemo(btn){
   const D=datosDemo(); if(btn) btn.disabled=true;
-  try{ for(const [col,arr] of [[NEG.inv,D.inventario],[NEG.cli,D.clientes],[NEG.ven,D.ventas],[NEG.cot,D.cotizaciones]]) for(const x of arr){ const {id,...rest}=x; await col.doc(id).set(rest); }
+  try{ for(const [col,arr] of [[NEG.inv,D.inventario],[NEG.cli,D.clientes],[NEG.ven,D.ventas],[NEG.cot,D.cotizaciones],[NEG.caj,D.cajas]]) for(const x of arr){ const {id,...rest}=x; await col.doc(id).set(rest); }
     avisar("Datos de prueba cargados"); }catch(e){ avisar("No se pudieron cargar los datos de prueba"); }
   if(btn) btn.disabled=false; vistaNegocio();
 }
 async function borrarDemo(){
-  try{ for(const [col,arr] of [[NEG.ven,NEG.ventas],[NEG.cot,NEG.cotizaciones],[NEG.cli,NEG.perfiles],[NEG.inv,NEG.items]]) for(const x of arr.filter(x=>x.demo).slice()) await col.doc(x.id).delete();
+  try{ for(const [col,arr] of [[NEG.ven,NEG.ventas],[NEG.cot,NEG.cotizaciones],[NEG.cli,NEG.perfiles],[NEG.inv,NEG.items],[NEG.caj,NEG.cajas||[]]]) for(const x of arr.filter(x=>x.demo).slice()) await col.doc(x.id).delete();
     avisar("Datos de prueba eliminados"); }catch(e){ avisar("No se pudieron borrar todos los datos de prueba"); }
   vistaNegocio();
 }
@@ -1834,12 +1868,13 @@ function repGanancias(){
     pie:"Reporte interno de L&L Fashion"};
 }
 
-function repInventario(){
-  const its=NEG.items.slice().sort((a,b)=>(quedan(b)>0)-(quedan(a)>0)||String(a.nombre).localeCompare(b.nombre));
+function repInventario(cajaId){
+  const cj=cajaId?NEG.cajas.find(c=>c.id===cajaId):null;
+  const its=NEG.items.filter(i=>!cj||i.cajaId===cj.id).sort((a,b)=>(quedan(b)>0)-(quedan(a)>0)||String(a.nombre).localeCompare(b.nombre));
   let pz=0,vc=0,vv=0;
   const filas=its.map(i=>{ const q=Math.max(0,quedan(i)); pz+=q; vc+=q*num(i.costo); vv+=q*num(i.precio);
     return [i.nombre,i.tienda||"",dinero(num(i.costo)),dinero(num(i.precio)),q?String(q):"Agotado",dinero(q*num(i.costo)),dinero(q*(num(i.precio)-num(i.costo)))]; });
-  return {tipo:"reporte", titulo:"Reporte de inventario", subtitulo:"Mercancía disponible", extra:corta(hoy()), fecha:hoy(), archivo:`Inventario-${hoy()}.pdf`,
+  return {tipo:"reporte", titulo:cj?"Reporte de caja":"Reporte de inventario", subtitulo:cj?cj.nombre:"Mercancía disponible", extra:corta(hoy()), fecha:hoy(), archivo:cj?`Caja-${String(cj.nombre).replace(/[^\w\-]+/g,"-")}-${hoy()}.pdf`:`Inventario-${hoy()}.pdf`,
     kpis:[["Productos",String(its.length)],["Piezas disponibles",String(pz)],["Agotados",String(its.filter(i=>quedan(i)<=0).length)],
       ["Valor a lo que costó",dinero(vc)],["Valor a precio de venta",dinero(vv)],["Ganancia posible",dinero(vv-vc),"big"]],
     secciones:[{titulo:"Productos", cols:[["Producto",.25,"l"],["De dónde vino",.14,"l"],["Costo",.11,"r"],["Precio",.11,"r"],["Disp.",.09,"c"],["Valor costo",.14,"r"],["Gan. posible",.16,"r"]],
@@ -1938,8 +1973,8 @@ function verDocumento(d, volver){
 const RESP = { lista:[], max:10, intervalo:4*3600e3, enCurso:false, verTodos:false };
 const esPWA = () => typeof BD!=="undefined" && !!BD.db;
 const TIPOS_RESP = {salida:"Al salir", auto:"Cada 4 horas", manual:"Manual", antes:"Antes de restaurar"};
-const datosActuales = () => ({app:"llfashion", version:2, fecha:new Date().toISOString(), inventario:NEG.items, ventas:NEG.ventas, clientes:NEG.perfiles, cotizaciones:NEG.cotizaciones});
-const firmaDe = d => { const s=JSON.stringify([d.inventario,d.ventas,d.clientes,d.cotizaciones]); return s.length+":"+crc32(new TextEncoder().encode(s)); };
+const datosActuales = () => ({app:"llfashion", version:2, fecha:new Date().toISOString(), inventario:NEG.items, ventas:NEG.ventas, clientes:NEG.perfiles, cotizaciones:NEG.cotizaciones, cajas:NEG.cajas||[]});
+const firmaDe = d => { const s=JSON.stringify([d.inventario,d.ventas,d.clientes,d.cotizaciones,...(d.cajas&&d.cajas.length?[d.cajas]:[])]); return s.length+":"+crc32(new TextEncoder().encode(s)); };
 function haceCuanto(ms){ const m=Math.round((Date.now()-ms)/60000); if(m<1) return "hace un momento"; if(m<60) return `hace ${m} min`; const h=Math.round(m/60); if(h<24) return `hace ${h} ${h===1?"hora":"horas"}`;
   return new Date(ms).toLocaleDateString("es-DO",{day:"numeric",month:"short"}); }
 async function refrescarResp(){
@@ -1951,7 +1986,7 @@ async function crearRespaldo(tipo, forzar){
   if(NEG.estado!=="ok" || !NEG.listoI || !NEG.listoV || RESP.enCurso) return false;
   if(!esPWA() && (!NEG.resp || !ASSETS)) return false;
   const d=datosActuales();
-  if(!d.inventario.length && !d.ventas.length && !d.clientes.length && !d.cotizaciones.length) return false;
+  if(!d.inventario.length && !d.ventas.length && !d.clientes.length && !d.cotizaciones.length && !(d.cajas||[]).length) return false;
   const firma=firmaDe(d);
   if(!forzar && firma===leer("respFirma",null)){
     // Sin cambios: no se duplica la copia, se actualiza la fecha del último respaldo igual
@@ -1990,7 +2025,7 @@ async function leerRespaldo(r){
   const res=await fetch("/_blob/"+r.asset); if(!res.ok) throw new Error("no"); return await res.json();
 }
 async function reemplazarTodo(d){
-  const grupos=[["inventario",NEG.inv,NEG.items,d.inventario||[]],["ventas",NEG.ven,NEG.ventas,d.ventas||[]],["clientes",NEG.cli,NEG.perfiles,d.clientes||[]],["cotizaciones",NEG.cot,NEG.cotizaciones,d.cotizaciones||[]]];
+  const grupos=[["inventario",NEG.inv,NEG.items,d.inventario||[]],["ventas",NEG.ven,NEG.ventas,d.ventas||[]],["clientes",NEG.cli,NEG.perfiles,d.clientes||[]],["cotizaciones",NEG.cot,NEG.cotizaciones,d.cotizaciones||[]],["cajas",NEG.caj,NEG.cajas||[],d.cajas||[]]];
   if(esPWA()){
     for(const [n,,,arr] of grupos){ await tx(n,"readwrite",st=>st.clear()); for(const x of arr) await tx(n,"readwrite",st=>st.put(x)); }
     await recargar(); return;
@@ -2414,12 +2449,255 @@ function imprimirDoc(d){
   setTimeout(()=>{ try{ window.print(); }catch(e){ fin(); avisar("Para imprimir, descarga el PDF"); } setTimeout(fin,60000); },200);
 }
 
+/* ============ Cajas de mercancía ============ */
+if(!NEG.cajas) NEG.cajas = [];
+NEG.iseg = "productos";
+const ICO_CAJA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M3.5 7.5 12 3.5l8.5 4v9L12 20.5l-8.5-4z"/><path d="M3.5 7.5 12 11.5l8.5-4M12 11.5v9M7.8 5.5l8.5 4"/></svg>';
+const cajasOrden = () => NEG.cajas.slice().sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||"")||(b.creado||0)-(a.creado||0));
+const cajaDe = it => it && it.cajaId ? NEG.cajas.find(c=>c.id===it.cajaId) || null : null;
+const nombreCaja = it => { const c=cajaDe(it); return c ? c.nombre : ""; };
+const itemsDeCaja = id => NEG.items.filter(i=>i.cajaId===id);
+
+function statsCaja(c){
+  const its=itemsDeCaja(c.id); let piezas=0,quedanP=0,costoProd=0,vendido=0,ganado=0,posible=0,valorRest=0;
+  for(const i of its){ const co=num(i.costo), q=Math.max(0,quedan(i));
+    piezas+=num(i.cantidad); quedanP+=q; costoProd+=co*num(i.cantidad); posible+=q*(num(i.precio)-co); valorRest+=q*num(i.precio);
+    for(const v of NEG.ventas) if(v.productoId===i.id){ vendido+=totalV(v); ganado+=gananciaV(v); } }
+  const pagado = num(c.costo) > 0 ? num(c.costo) : costoProd;
+  return {its, piezas, quedan:quedanP, vendidas:Math.max(0,piezas-quedanP), costoProd, pagado, vendido, ganado, posible, valorRest,
+    falta:Math.max(0,pagado-vendido), pct: pagado>0 ? Math.min(100,Math.round(vendido/pagado*100)) : 0};
+}
+
+async function idCajaPorNombre(nombre){
+  nombre=String(nombre||"").trim(); if(!nombre) return "";
+  const c=NEG.cajas.find(x=>String(x.nombre).trim().toLowerCase()===nombre.toLowerCase());
+  if(c) return c.id;
+  const r=await NEG.caj.add({nombre, fecha:hoy(), tienda:"", nota:"", costo:0, creado:Date.now()});
+  return r.id;
+}
+const opcionesCaja = sel => `<option value="">Sin caja</option>${cajasOrden().map(c=>`<option value="${c.id}" ${c.id===sel?"selected":""}>${esc(c.nombre)}</option>`).join("")}<option value="__nueva">+ Crear caja nueva…</option>`;
+async function cajaDelForm(f){
+  if(!f.caja) return "";
+  if(f.caja.value!=="__nueva") return f.caja.value;
+  const n=(f.cajanom.value||"").trim(); if(!n) return "";
+  try{ return await idCajaPorNombre(n); }catch(e){ return ""; }
+}
+function activarCampoCaja(f){
+  if(!f.caja) return;
+  const cambio=()=>{ const nueva=f.caja.value==="__nueva"; $("#cjnueva").hidden=!nueva; if(nueva) setTimeout(()=>f.cajanom.focus(),30);
+    const c=NEG.cajas.find(x=>x.id===f.caja.value);
+    if(c){ if(!f.tienda.value.trim() && c.tienda) f.tienda.value=c.tienda; } };
+  f.caja.addEventListener("change", cambio); $("#cjnueva").hidden=f.caja.value!=="__nueva";
+}
+
+/* Pestaña Inventario: Productos | Cajas */
+function negInventario(){
+  const seg=`<div class="seg2" role="group" aria-label="Ver inventario por"><button data-iseg="productos" aria-pressed="${NEG.iseg!=="cajas"}">Productos</button><button data-iseg="cajas" aria-pressed="${NEG.iseg==="cajas"}">Cajas${NEG.cajas.length?` <span class="cjn">${NEG.cajas.length}</span>`:""}</button></div>`;
+  return seg + (NEG.iseg==="cajas" ? negCajas() : negInventarioProductos());
+}
+function negCajas(){
+  const L=cajasOrden().filter(c=>coincide(c.nombre,c.tienda,c.nota,...itemsDeCaja(c.id).map(i=>i.nombre)));
+  const sin=NEG.items.filter(i=>!cajaDe(i)).length;
+  return `<div class="toolbar"><h3>${NEG.cajas.length} ${NEG.cajas.length===1?"caja":"cajas"}</h3><button class="btn sm" data-nueva-caja><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Caja</button></div>
+  ${!NEG.cajas.length ? `<div class="empty cjempty"><span class="cjbig">${ICO_CAJA}</span><h3>Aún no tienes cajas</h3>Cuando te llegue una caja con mercancía variada, créala aquí, ponle su nombre y mete los productos que traía. Así ves cuánto te costó y cuánto has recuperado de cada una.<br><button class="btn" data-nueva-caja>Crear mi primera caja</button></div>`
+  : !L.length ? sinResultados()
+  : `<div class="rows">${L.map(c=>{ const s=statsCaja(c); return `
+    <button class="rowi withpic cjrow" data-caja="${c.id}">
+      <span class="thumb ph cjtile" style="width:56px;height:56px" aria-hidden="true">${ICO_CAJA}</span>
+      <span class="t">${esc(c.nombre)}</span><span class="v">${dinero(s.pagado)}</span>
+      <span class="s">${[c.fecha?fechaBonita(c.fecha):"",c.tienda?esc(c.tienda):"",`${s.its.length} ${s.its.length===1?"producto":"productos"}`].filter(Boolean).join(" · ")}</span>
+      <span class="s r">${s.piezas?(s.quedan?`Quedan ${s.quedan} de ${s.piezas}`:`<span class="low">Todo vendido</span>`):"Vacía"}</span>
+      <span class="cjbar" aria-label="Recuperado ${s.pct}%"><i style="width:${s.pct}%"></i><em>${s.pct>=100?"¡Recuperaste la inversión!":`Recuperado ${s.pct}%`}</em></span>
+    </button>`;}).join("")}</div>`}
+  ${NEG.cajas.length&&sin?`<p class="note">${sin} ${sin===1?"producto no está":"productos no están"} en ninguna caja. Para meterlos, abre una caja y toca «Meter productos», o en Productos mantén presionado y usa «Caja».</p>`:""}`;
+}
+
+/* Crear / editar caja */
+function formCaja(caja, despues){
+  const c=caja||{nombre:"",fecha:hoy(),tienda:"",costo:"",nota:""};
+  abrirHoja(`<form class="form" id="f">
+    <h2>${caja?"Editar caja":"Nueva caja"}</h2>
+    <label class="field">Nombre de la caja<input name="nombre" required value="${esc(c.nombre)}" placeholder="Ej. Caja Shein noviembre, Paca #3" autocomplete="off"></label>
+    <div class="two">
+      <label class="field">Fecha en que llegó<input name="fecha" type="date" value="${esc(c.fecha||hoy())}"></label>
+      <label class="field">¿De dónde vino?<input name="tienda" list="ltc" value="${esc(c.tienda)}" placeholder="Ej. Shein, suplidor" autocomplete="off"></label>
+    </div>
+    <datalist id="ltc">${[...new Set([...NEG.items.map(x=>(x.tienda||"").trim()),...NEG.cajas.map(x=>(x.tienda||"").trim()),"Shein","Temu","Amazon","Tienda local","Suplidor","Paca","Feria"].filter(Boolean))].map(n=>`<option value="${esc(n)}">`).join("")}</datalist>
+    <label class="field">Lo que pagaste por toda la caja (opcional)<input name="costo" type="number" inputmode="decimal" min="0" step="any" value="${esc(num(c.costo)||"")}" placeholder="Con envío, pasaje o aduana"></label>
+    <p class="note" style="text-align:left;margin:-6px 0 4px">Si lo pones, la app te dice cuánto te falta para recuperarlo y te ayuda a repartir ese costo entre las piezas.</p>
+    <label class="field">Nota (opcional)<input name="nota" value="${esc(c.nota)}" placeholder="Ej. Llegó con 2 piezas dañadas"></label>
+    <p class="hint" id="hint"></p>
+    <button class="btn block" type="submit">${caja?"Guardar cambios":"Crear caja"}</button>
+    ${caja?`<button type="button" class="danger" id="del" data-label="Eliminar caja">Eliminar caja</button>`:""}
+  </form>`, ()=>{
+    const f=$("#f"); if(!caja) setTimeout(()=>f.nombre.focus(),60);
+    f.onsubmit=async e=>{ e.preventDefault(); const b=f.querySelector("[type=submit]"); b.disabled=true;
+      const nombre=f.nombre.value.trim();
+      if(NEG.cajas.some(x=>x.id!==(caja&&caja.id) && String(x.nombre).trim().toLowerCase()===nombre.toLowerCase())){ b.disabled=false; $("#hint").textContent="Ya tienes una caja con ese nombre. Ponle otro para no confundirlas."; return; }
+      const d={nombre, fecha:f.fecha.value||hoy(), tienda:f.tienda.value.trim(), costo:num(f.costo.value), nota:f.nota.value.trim()};
+      try{ let id;
+        if(caja){ id=caja.id; const {id:_v,...resto}=caja; await NEG.caj.doc(id).set({...resto,...d,demo:!!caja.demo,creado:caja.creado||Date.now()}); }
+        else { id=(await NEG.caj.add({...d,creado:Date.now()})).id; }
+        avisar(caja?"Caja guardada":"Caja creada"); NEG.iseg="cajas";
+        if(despues) despues(id); else hojaCaja(id);
+      }catch(err){ b.disabled=false; errorGuardar(err); } };
+    if(caja) $("#del").onclick=()=>borrarCaja(caja);
+  });
+}
+function borrarCaja(caja){
+  const its=itemsDeCaja(caja.id);
+  abrirHoja(`<div class="form"><h2>Eliminar «${esc(caja.nombre)}»</h2>
+    ${its.length?`<p>Esta caja tiene ${its.length} ${its.length===1?"producto":"productos"}.</p>
+    <label class="delopt"><input type="radio" name="cjmodo" value="quedan" checked><span><b>Dejar los productos en el inventario</b><small>Solo se borra la caja. Los productos y sus ventas quedan igual, pero sin caja.</small></span></label>
+    <label class="delopt peligro"><input type="radio" name="cjmodo" value="todo"><span><b>Borrar también sus productos</b><small>Se borran los ${its.length} productos del inventario. Las ventas que ya hiciste no se borran.</small></span></label>`
+    :`<p>La caja está vacía.</p>`}
+    <p class="hint" id="hint"></p>
+    <button class="danger" id="okdel" style="margin-top:8px">Eliminar caja</button>
+    <button class="btn ghost block" id="nodel" style="margin-top:8px">Cancelar</button></div>`, ()=>{
+    $("#nodel").onclick=()=>hojaCaja(caja.id);
+    $("#okdel").onclick=async()=>{ const b=$("#okdel"); b.disabled=true; const todo=(document.querySelector("[name=cjmodo]:checked")||{}).value==="todo";
+      try{ for(const i of its){ if(todo){ await NEG.inv.doc(i.id).delete(); if(i.foto&&ASSETS) ASSETS.delete(i.foto).catch(()=>{}); }
+          else { const {id,...rest}=i; await NEG.inv.doc(id).set({...rest,cajaId:""}); } }
+        await NEG.caj.doc(caja.id).delete(); sheet.close(); avisar("Caja eliminada");
+      }catch(e){ b.disabled=false; errorGuardar(e); } };
+  });
+}
+
+/* Detalle de una caja */
+function hojaCaja(id){
+  if(!NEG.cajas.find(x=>x.id===id)){ if(sheet.open) sheet.close(); return; }
+  abrirHoja("", ()=>pintarCaja(id));
+  window.__clienteAbierto=()=>{ if(sheet.open && sheet.querySelector(`[data-cjhoja="${id}"]`)) pintarCaja(id); };
+}
+function pintarCaja(id){
+  const c=NEG.cajas.find(x=>x.id===id); if(!c){ if(sheet.open) sheet.close(); return; }
+  const s=statsCaja(c), its=s.its.slice().sort((a,b)=>(quedan(b)>0)-(quedan(a)>0)||String(a.nombre).localeCompare(b.nombre));
+  const difiere = num(c.costo)>0 && its.length && Math.abs(num(c.costo)-s.costoProd)>Math.max(1,s.piezas*0.5);
+  const filas=[
+    [num(c.costo)>0?"Pagaste por la caja":"Te costó (suma de productos)", dinero(s.pagado)],
+    difiere?["Costo anotado en los productos", dinero(s.costoProd)]:null,
+    ["Piezas", s.piezas?`${s.vendidas} vendidas · quedan ${s.quedan}`:"Ninguna todavía"],
+    ["Has vendido", dinero(s.vendido)],
+    s.falta>0?["Te falta para recuperar", dinero(s.falta), "low"]:["Ganancia de la caja hasta ahora", dinero(s.vendido-s.pagado), "b"],
+    s.quedan?["Si vendes lo que queda, ganarías en total", dinero(s.vendido+s.valorRest-s.pagado)]:null
+  ].filter(Boolean);
+  {
+    sheet.querySelector(".sheet").innerHTML=`<div class="grab" data-cjhoja="${c.id}"></div>
+      <button class="close" data-close aria-label="Cerrar"><svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <div class="crm-head"><span class="thumb ph cjtile" style="width:64px;height:64px" aria-hidden="true">${ICO_CAJA}</span><div><h2 style="margin:0;font-size:1.6rem">${esc(c.nombre)}</h2>
+        <span class="note">${[c.fecha?corta(c.fecha):"",c.tienda?esc(c.tienda):""].filter(Boolean).join(" · ")}</span></div></div>
+      ${c.nota?`<p class="note" style="text-align:left;margin:0 0 8px">${esc(c.nota)}</p>`:""}
+      <span class="cjbar big" aria-label="Recuperado ${s.pct}%"><i style="width:${s.pct}%"></i><em>${s.pct>=100?"¡Recuperaste lo que pagaste por esta caja!":`Has recuperado el ${s.pct}% de lo que pagaste`}</em></span>
+      <div class="kv">${filas.map(([a,b,k])=>`<div class="${k||""}"><span>${a}</span><b>${b}</b></div>`).join("")}</div>
+      ${difiere?`<button class="btn ghost block" id="crep" style="margin:-4px 0 14px">Repartir lo que pagaste entre las piezas</button>`:""}
+      <div class="acts3">
+        <button class="act" id="cadd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Producto nuevo</button>
+        <button class="act" id="cmeter">${ICO_CAJA}Meter productos</button>
+        <button class="act" id="cedit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Editar caja</button>
+      </div>
+      <div class="subhead"><h3 class="subtitle">Lo que traía (${its.length})</h3>${its.length?`<button class="linkish" id="cpdf">Reporte PDF</button>`:""}</div>
+      ${its.length?`<div class="rows">${its.map(i=>{ const q=quedan(i); return `
+        <button class="rowi withpic" data-cjitem="${i.id}">
+          ${miniatura(i,48)}<span class="t">${esc(i.nombre)}</span><span class="v">${dinero(num(i.precio))}</span>
+          <span class="s">Costo ${dinero(num(i.costo))} · ${num(i.cantidad)} ${num(i.cantidad)===1?"pieza":"piezas"}</span>
+          <span class="s r"><span class="${q<=0?"low":""}">${q<=0?"Agotado":`Quedan ${q}`}</span></span>
+        </button>`;}).join("")}</div>`
+      :`<div class="empty" style="padding:22px 10px">Esta caja está vacía.<br>Agrega los productos que traía con «Producto nuevo», o mete los que ya tienes con «Meter productos».</div>`}`;
+    $("#cadd").onclick=()=>formItem(null,{cajaId:c.id,tienda:c.tienda||"",fecha:c.fecha||hoy()});
+    $("#cmeter").onclick=()=>meterProductos(c.id);
+    $("#cedit").onclick=()=>formCaja(c);
+    if($("#crep")) $("#crep").onclick=()=>repartirCosto(c.id);
+    if($("#cpdf")) $("#cpdf").onclick=()=>verDocumento(repInventario(c.id));
+    sheet.querySelectorAll("[data-cjitem]").forEach(b=>b.onclick=()=>formItem(NEG.items.find(x=>x.id===b.dataset.cjitem),{_volver:c.id}));
+  }
+}
+
+/* Elegir productos existentes para meter en una caja */
+function meterProductos(cajaId, preIds){
+  const c=NEG.cajas.find(x=>x.id===cajaId); if(!c) return;
+  const elegidos=new Set(preIds||itemsDeCaja(cajaId).map(i=>i.id));
+  let filtro="";
+  abrirHoja(`<div class="form"><h2>Meter productos en «${esc(c.nombre)}»</h2>
+    <label class="field">Buscar<input id="cjq" type="search" placeholder="Nombre del producto" autocomplete="off"></label>
+    <div id="cjlist" class="cjlist"></div>
+    <p class="hint" id="hint"></p>
+    <button class="btn block" id="cjok">Guardar</button></div>`, ()=>{
+    const pintar=()=>{
+      const L=NEG.items.filter(i=>!filtro||String(i.nombre).toLowerCase().includes(filtro));
+      $("#cjlist").innerHTML = !NEG.items.length ? `<p class="note">No tienes productos todavía.</p>` : !L.length ? `<p class="note">Nada coincide.</p>` :
+        L.map(i=>{ const otra=cajaDe(i); return `<label class="cjpick"><input type="checkbox" value="${i.id}" ${elegidos.has(i.id)?"checked":""}>${miniatura(i,40)}<span><b>${esc(i.nombre)}</b><small>${otra&&otra.id!==cajaId?`Ahora en «${esc(otra.nombre)}»`:otra?"En esta caja":"Sin caja"}${i.tienda?" · "+esc(i.tienda):""}</small></span></label>`; }).join("");
+      $("#cjok").textContent = `Guardar (${elegidos.size} ${elegidos.size===1?"producto":"productos"})`;
+    };
+    $("#cjq").oninput=e=>{ filtro=e.target.value.trim().toLowerCase(); pintar(); };
+    $("#cjlist").onchange=e=>{ if(e.target.type==="checkbox"){ e.target.checked?elegidos.add(e.target.value):elegidos.delete(e.target.value); pintar(); } };
+    pintar();
+    $("#cjok").onclick=async()=>{ const b=$("#cjok"); b.disabled=true;
+      try{ for(const i of NEG.items.slice()){ const dentro=i.cajaId===cajaId, quiere=elegidos.has(i.id);
+          if(dentro!==quiere){ const {id,...rest}=i; await NEG.inv.doc(id).set({...rest,cajaId:quiere?cajaId:""}); } }
+        avisar("Caja actualizada"); hojaCaja(cajaId);
+      }catch(e){ b.disabled=false; errorGuardar(e); } };
+  });
+}
+
+/* Repartir el costo total de la caja entre sus piezas */
+function repartirCosto(cajaId){
+  const c=NEG.cajas.find(x=>x.id===cajaId); if(!c) return;
+  const its=itemsDeCaja(cajaId), total=num(c.costo), piezas=its.reduce((s,i)=>s+num(i.cantidad),0), valor=its.reduce((s,i)=>s+num(i.cantidad)*num(i.precio),0);
+  const redondo = n => Math.round(n);
+  const calc = modo => its.map(i=>({i, costo: modo==="precio" ? (valor>0 ? redondo(total*num(i.precio)/valor) : 0) : (piezas>0 ? redondo(total/piezas) : 0)}));
+  abrirHoja(`<div class="form"><h2>Repartir el costo</h2>
+    <p>Pagaste <b>${dinero(total)}</b> por «${esc(c.nombre)}», que trajo ${piezas} ${piezas===1?"pieza":"piezas"}. Elige cómo repartirlo y la app pone el costo de cada producto.</p>
+    <label class="delopt"><input type="radio" name="rmodo" value="precio" checked><span><b>Según el precio de venta</b><small>Lo que vendes más caro carga más costo. Recomendado si la caja trae cosas de precios distintos.</small></span></label>
+    <label class="delopt"><input type="radio" name="rmodo" value="igual"><span><b>Igual para cada pieza</b><small>${piezas?`Cada pieza costaría ${dinero(redondo(total/piezas))}.`:""}</small></span></label>
+    <div class="rows" id="rprev"></div>
+    <p class="hint" id="hint"></p>
+    <button class="btn block" id="rok" ${piezas?"":"disabled"}>Poner estos costos</button>
+    <button class="btn ghost block" id="rno" style="margin-top:8px">Cancelar</button></div>`, ()=>{
+    const modo=()=>(document.querySelector("[name=rmodo]:checked")||{}).value||"precio";
+    const pintar=()=>{ $("#rprev").innerHTML=calc(modo()).map(({i,costo})=>`<div class="abitem"><span>${esc(i.nombre)} <small class="note">· ${num(i.cantidad)} × </small></span><b>${dinero(costo)} c/u <small class="note">(antes ${dinero(num(i.costo))})</small></b></div>`).join("")
+      + (valor<=0&&modo()==="precio"?`<p class="hint">Tus productos no tienen precio de venta. Usa «Igual para cada pieza».</p>`:""); };
+    sheet.querySelectorAll("[name=rmodo]").forEach(r=>r.onchange=pintar); pintar();
+    $("#rno").onclick=()=>hojaCaja(cajaId);
+    $("#rok").onclick=async()=>{ if(modo()==="precio"&&valor<=0) return; const b=$("#rok"); b.disabled=true;
+      try{ for(const {i,costo} of calc(modo())){ const {id,...rest}=i; await NEG.inv.doc(id).set({...rest,costo}); }
+        avisar("Costos actualizados"); hojaCaja(cajaId);
+      }catch(e){ b.disabled=false; errorGuardar(e); } };
+  });
+}
+
+/* Mover varios productos seleccionados a una caja */
+function moverSeleccionACaja(ids){
+  const its=NEG.items.filter(i=>ids.includes(i.id)); if(!its.length) return;
+  abrirHoja(`<div class="form"><h2>¿A qué caja van?</h2>
+    <p>${its.length} ${its.length===1?"producto seleccionado":"productos seleccionados"}.</p>
+    <div class="rows">${cajasOrden().map(c=>`<button class="rowi withpic" data-mvcaja="${c.id}"><span class="thumb ph cjtile" style="width:40px;height:40px" aria-hidden="true">${ICO_CAJA}</span><span class="t">${esc(c.nombre)}</span><span class="v"></span><span class="s">${itemsDeCaja(c.id).length} ${itemsDeCaja(c.id).length===1?"producto":"productos"}</span></button>`).join("")}</div>
+    <label class="field" style="margin-top:12px">O crea una caja nueva<span class="cjnew"><input id="mvnom" placeholder="Nombre de la caja"><button class="btn sm" id="mvcrear">Crear</button></span></label>
+    ${its.some(i=>cajaDe(i))?`<button class="btn ghost block" data-mvcaja="" style="margin-top:6px">Sacarlos de su caja</button>`:""}
+    <p class="hint" id="hint"></p></div>`, ()=>{
+    const mover=async cid=>{ try{ for(const i of its){ const {id,...rest}=i; await NEG.inv.doc(id).set({...rest,cajaId:cid}); }
+        salirSeleccion(); avisar(cid?"Productos guardados en la caja":"Productos sacados de la caja"); if(cid){ hojaCaja(cid); } else sheet.close();
+      }catch(e){ errorGuardar(e); } };
+    sheet.querySelectorAll("[data-mvcaja]").forEach(b=>b.onclick=()=>{ b.disabled=true; mover(b.dataset.mvcaja); });
+    $("#mvcrear").onclick=async e=>{ e.preventDefault(); const n=$("#mvnom").value.trim(); if(!n){ $("#hint").textContent="Escribe el nombre de la caja."; return; }
+      e.target.disabled=true; try{ mover(await idCajaPorNombre(n)); }catch(err){ e.target.disabled=false; errorGuardar(err); } };
+  });
+}
+
+view.addEventListener("click", e=>{
+  const s=e.target.closest("[data-iseg]"); if(s){ if(typeof salirSeleccion==="function") salirSeleccion(); NEG.iseg=s.dataset.iseg; return vistaNegocio(); }
+  if(e.target.closest("[data-nueva-caja]")) return formCaja();
+  const c=e.target.closest("[data-caja]"); if(c) return hojaCaja(c.dataset.caja);
+});
+document.addEventListener("click", e=>{
+  if(e.target.closest("[data-sel-caja]")){ const ids=[...SEL.ids].map(k=>k.slice(2)); moverSeleccionACaja(ids); }
+});
+
 /* ============ Selección múltiple para eliminar (mantener presionado) ============ */
 const SEL = { activo:false, tipo:"", ids:new Set(), timer:null, x:0, y:0, recien:false };
 function tipoSeleccion(){
   if(NEG.sub==="ventas" && NEG.vseg==="ventas") return "ventas";
   if(NEG.sub==="clientes") return "clientes";
-  if(NEG.sub==="inventario") return "inventario";
+  if(NEG.sub==="inventario" && NEG.iseg!=="cajas") return "inventario";
   return "";
 }
 function claveFila(row){
@@ -2449,10 +2727,11 @@ function marcarSeleccion(){
     let ck=r.querySelector(".selck"); if(SEL.activo && filaSeleccionable(r)){ if(!ck){ ck=document.createElement("i"); ck.className="selck"; ck.setAttribute("aria-hidden","true"); ck.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'; r.appendChild(ck); } r.setAttribute("aria-pressed",String(on)); }
     else { if(ck) ck.remove(); r.removeAttribute("aria-pressed"); } });
   const n=SEL.ids.size, nom={ventas:["venta","ventas"],clientes:["cliente","clientes"],inventario:["producto","productos"]}[SEL.tipo]||["",""];
-  bar.hidden=!SEL.activo;
+  bar.hidden=!SEL.activo; bar.classList.toggle("concaja",SEL.tipo==="inventario");
   if(SEL.activo) bar.innerHTML=`<button class="sb-x" data-sel-salir aria-label="Cancelar selección"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     <b>${n} ${n===1?nom[0]:nom[1]}</b>
     <button class="sb-todo" data-sel-todo>Todo</button>
+    ${SEL.tipo==="inventario"?`<button class="sb-caja" data-sel-caja ${n?"":"disabled"}>${ICO_CAJA}<span>Caja</span></button>`:""}
     <button class="sb-del" data-sel-borrar ${n?"":"disabled"}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>Eliminar</button>`;
 }
 // mantener presionado
